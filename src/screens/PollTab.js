@@ -1,18 +1,14 @@
 import React from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { StyleSheet, Text, View, StatusBar } from 'react-native';
+import { StyleSheet } from 'react-native';
 import CreateDish from './CreateDish';
+import VoteDish from './VoteDish';
 
 const Tab = createMaterialTopTabNavigator();
 
-const SettingsScreen = () => (
-  <View>
-    <Text>Home</Text>
-  </View>
-);
 const styles = StyleSheet.create({});
 
-function PollTab() {
+function PollTab(navigation) {
   return (
     <Tab.Navigator
       tabBarOptions={{
@@ -21,7 +17,16 @@ function PollTab() {
       }}
     >
       <Tab.Screen name='Create Dishes' component={CreateDish} />
-      <Tab.Screen name='Vote Dishes' component={SettingsScreen} />
+      <Tab.Screen
+        name='Vote Dishes'
+        component={VoteDish}
+        listeners={{
+          tabPress: (e) => {
+            // Prevent default action
+            console.log('hello');
+          },
+        }}
+      />
     </Tab.Navigator>
   );
 }

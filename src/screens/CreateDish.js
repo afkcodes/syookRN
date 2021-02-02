@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
-
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
