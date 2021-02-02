@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import {
@@ -19,7 +19,9 @@ const styles = StyleSheet.create({
 });
 
 const InputCommon = (props) => {
+  const [state, setState] = useState('');
   const { onChange, value, isTextArea, placeholder } = props;
+  onChange(state);
   return (
     <TextInput
       mode='outlined'
@@ -31,8 +33,8 @@ const InputCommon = (props) => {
       numberOfLines={8}
       style={isTextArea ? styles.textAreaStyle : styles.inputStyle}
       placeholder={placeholder}
-      value={value}
-      onChangeText={onChange}
+      value={state}
+      onChangeText={(nextValue) => setState(nextValue)}
     />
   );
 };

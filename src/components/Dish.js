@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Image } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Checkbox } from 'react-native-paper';
 import {
@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    marginVertical: 10,
   },
   imageConatainer: {
     height: '85%',
@@ -23,6 +24,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'yellow',
     borderRadius: 10,
     marginHorizontal: 10,
+  },
+  imageStyle: {
+    height: '100%',
+    width: '100%',
+    borderRadius: 10,
   },
   metaContainer: {
     height: '85%',
@@ -55,7 +61,7 @@ const styles = StyleSheet.create({
     color: 'grey',
   },
 });
-const Dish = ({ dishName, dishDesc, id, isVoterScreen }) => {
+const Dish = ({ dishName, dishDesc, id, isVoterScreen, imgSrc }) => {
   const [checked, setChecked] = React.useState(false);
 
   return (
@@ -67,7 +73,7 @@ const Dish = ({ dishName, dishDesc, id, isVoterScreen }) => {
       style={styles.mainContainer}
     >
       <View style={styles.imageConatainer}>
-        <Text>ImageConatainer</Text>
+        <Image style={styles.imageStyle} resizeMode='cover' source={imgSrc} />
       </View>
       <View
         style={
@@ -82,7 +88,7 @@ const Dish = ({ dishName, dishDesc, id, isVoterScreen }) => {
         <View style={styles.dishDescContainer}>
           <Text style={styles.descTextStyle}>{dishDesc}</Text>
         </View>
-        {isVoterScreen ? <Text style={styles.userAtrributionText}>By Ashish</Text> : null}
+        {isVoterScreen ? <Text style={styles.userAtrributionText}>{id}</Text> : null}
       </View>
       {isVoterScreen ? <Checkbox status={checked ? 'checked' : 'unchecked'} /> : null}
     </TouchableOpacity>

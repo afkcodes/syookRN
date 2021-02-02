@@ -8,6 +8,8 @@ import {
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import ButtonCommon from '../components/ButtonCommon';
 import InputCommon from '../components/InputCommon';
+import Storage from '../utils/Storage';
+import Util from '../utils/util';
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -42,11 +44,18 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
-
+const dishes = [];
 const CreateDish = () => {
-  const [dishName, setDishName] = useState('');
-  const [dishDesc, setdishDesc] = useState('');
-  const [imagePath, setImagePath] = useState({});
+  console.log('rebuilding --->', dishes);
+  let dishName,
+    dishDesc = '';
+  const getDishName = (name) => {
+    dishName = name;
+  };
+  const getdishDesc = (desc) => {
+    dishDesc = desc;
+  };
+  let imagePath = {};
   const imageOptions = {
     mediaType: 'photo',
     includeBase64: false,
@@ -58,10 +67,11 @@ const CreateDish = () => {
 
   const launchNativeCamera = () => {
     launchCamera(imageOptions, (response) => {
-      console.log('Response = ', response);
+      // console.log('Response = ', response);
       if (response.uri) {
         const imageUri = { uri: response.uri };
-        setImagePath(imageUri);
+        imagePath = imageUri;
+        refRBSheet.current.close();
       } else if (response.didCancel) {
         console.log('Cancelled by user');
       } else {
@@ -72,10 +82,11 @@ const CreateDish = () => {
 
   const launchNativeLibrary = () => {
     launchImageLibrary(imageOptions, (response) => {
-      console.log('Response = ', response);
+      // console.log('Response = ', response);
       if (response.uri) {
         const imageUri = { uri: response.uri };
-        setImagePath(imageUri);
+        imagePath = imageUri;
+        refRBSheet.current.close();
       } else if (response.didCancel) {
         console.log('Cancelled by user');
       } else {
@@ -83,20 +94,31 @@ const CreateDish = () => {
       }
     });
   };
+
+  const onSubmit = async () => {
+    const currentDish = {
+      id: Util.createUID(),
+      dishName,
+      dishDesc,
+      imagePath,
+    };
+    dishes.push(currentDish);
+    console.log('onSubmit called');
+    if (dishes.length === 5) {
+      await Storage.setData('recipes', dishes);
+    }
+  };
+  // TODO FIX VALUE & CLEAR INPUT
   return (
     <View style={styles.mainContainer}>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>Enter Your 2 Best Dishes </Text>
       </View>
       <View style={styles.dishInputContainer}>
+        <InputCommon onChange={getDishName} value={null} placeholder='Dish Name' />
         <InputCommon
-          onChange={(nextValue) => setDishName(nextValue)}
-          value={dishName}
-          placeholder='Dish Name'
-        />
-        <InputCommon
-          onChange={(nextValue) => setdishDesc(nextValue)}
-          value={dishDesc}
+          onChange={getdishDesc}
+          value={null}
           isTextArea
           placeholder='Dish Description'
         />
@@ -111,7 +133,7 @@ const CreateDish = () => {
           style={styles.buttonStyle}
           content='Submit '
           onPress={() => {
-            refRBSheet.current.open();
+            onSubmit();
           }}
         />
         <RBSheet

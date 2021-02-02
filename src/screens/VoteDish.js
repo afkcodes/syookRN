@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+/* eslint-disable react/prop-types */
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, FlatList } from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -7,6 +8,7 @@ import {
 import { useIsFocused } from '@react-navigation/native';
 import ButtonCommon from '../components/ButtonCommon';
 import Dish from '../components/Dish';
+import Storage from '../utils/Storage';
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -29,21 +31,38 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'space-evenly',
-    // backgroundColor: 'red',
-    paddingVertical: 10,
   },
 });
 
+const item = ({ item }) => (
+  <Dish dishName={item.dishName} dishDesc={item.dishDesc} isVoterScreen imgSrc={item.imagePath} />
+);
+
 const VoteDish = ({ navigation }) => {
+  const [dishesData, setDishesData] = useState(null);
+  const getDishesData = async () => {
+    console.log('calling getDishesData');
+    const data = await Storage.getData('recipes');
+    console.log('data----> ', data);
+    setDishesData(data);
+    return data;
+  };
   const isFocused = useIsFocused();
-  // useEffect(() => {
-  //   console.log('hello calling useEffect');
-  // }, []);
   console.log(isFocused);
+  if (isFocused && dishesData === null) {
+    getDishesData();
+    console.log(dishesData);
+  }
   return (
     <View style={styles.mainContainer}>
       <View style={styles.dishListContainer}>
-        <Dish
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={dishesData}
+          renderItem={item}
+          keyExtractor={(item) => item.id}
+        />
+        {/* <Dish
           dishName='Tandoori Chicken'
           dishDesc='Awesome Tandoori Dish By Ashish Kumar'
           isVoterScreen
@@ -57,7 +76,8 @@ const VoteDish = ({ navigation }) => {
           dishName='Tandoori Chicken'
           dishDesc='Awesome Tandoori Dish By Ashish Kumar'
           isVoterScreen
-        />
+          id='1'
+        /> */}
       </View>
       <View>
         <ButtonCommon
@@ -65,6 +85,7 @@ const VoteDish = ({ navigation }) => {
           content='Submit Vote '
           onPress={() => {
             console.log('Voted');
+            navigation.push('Results');
           }}
         />
       </View>

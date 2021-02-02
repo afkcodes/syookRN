@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Login from './src/screens/Login';
 import PollTab from './src/screens/PollTab';
+import Results from './src/screens/Results';
 
 const styles = StyleSheet.create({
   rootContainer: {
@@ -20,6 +21,7 @@ const App = () => (
       <Stack.Navigator>
         <Stack.Screen options={{ headerShown: false }} name='Login' component={Login} />
         <Stack.Screen options={{ headerShown: false }} name='Poll' component={PollTab} />
+        <Stack.Screen options={{ headerShown: false }} name='Results' component={Results} />
       </Stack.Navigator>
     </NavigationContainer>
   </>
