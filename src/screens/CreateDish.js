@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useRef, useContext } from 'react';
+import { StyleSheet, Text, View, ToastAndroid } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import {
   widthPercentageToDP as wp,
@@ -8,8 +8,8 @@ import {
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import ButtonCommon from '../components/ButtonCommon';
 import InputCommon from '../components/InputCommon';
-import Storage from '../utils/Storage';
 import Util from '../utils/util';
+import RecipiesContext from '../contexts/RecipiesContext';
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -44,9 +44,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
-const dishes = [];
-const CreateDish = () => {
-  console.log('rebuilding --->', dishes);
+const CreateDish = ({ navigation }) => {
   let dishName,
     dishDesc = '';
   const getDishName = (name) => {
@@ -64,7 +62,11 @@ const CreateDish = () => {
     saveToPhotos: true,
   };
   const refRBSheet = useRef();
-
+  const recipiesData = useContext(RecipiesContext);
+  // console.log(recipiesData);
+  const showToast = (message) => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);
+  };
   const launchNativeCamera = () => {
     launchCamera(imageOptions, (response) => {
       // console.log('Response = ', response);
@@ -72,6 +74,7 @@ const CreateDish = () => {
         const imageUri = { uri: response.uri };
         imagePath = imageUri;
         refRBSheet.current.close();
+        showToast('Photo Selected');
       } else if (response.didCancel) {
         console.log('Cancelled by user');
       } else {
@@ -87,6 +90,7 @@ const CreateDish = () => {
         const imageUri = { uri: response.uri };
         imagePath = imageUri;
         refRBSheet.current.close();
+        showToast('Photo Selected');
       } else if (response.didCancel) {
         console.log('Cancelled by user');
       } else {
@@ -101,17 +105,27 @@ const CreateDish = () => {
       dishName,
       dishDesc,
       imagePath,
+      votes: 0,
+      points: 0,
+      votedBy: [],
+      user: Util.user.currentUser.name,
     };
-    dishes.push(currentDish);
-    console.log('onSubmit called');
-    if (dishes.length === 5) {
-      await Storage.setData('recipes', dishes);
+
+    if (Util.user.maxDishAllowed > 0) {
+      recipiesData.updateRecipiesData(currentDish);
+      console.log('onSubmit called', JSON.stringify(recipiesData.data.length));
+      Util.user.maxDishAllowed -= 1;
+      console.log('Util.user.maxDishAllowed--->', Util.user.maxDishAllowed);
+      await Util.setUserData(Util.user.currentUser.username, Util.user);
+    } else {
+      showToast('Entering more than 2 dishes not allowed');
     }
   };
   // TODO FIX VALUE & CLEAR INPUT
   return (
     <View style={styles.mainContainer}>
       <View style={styles.headerContainer}>
+        <Text>{`Hi, ${Util.user.currentUser.name} ! `}</Text>
         <Text style={styles.headerText}>Enter Your 2 Best Dishes </Text>
       </View>
       <View style={styles.dishInputContainer}>
@@ -134,6 +148,7 @@ const CreateDish = () => {
           content='Submit '
           onPress={() => {
             onSubmit();
+            // navigation.navigate('Login');
           }}
         />
         <RBSheet

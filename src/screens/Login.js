@@ -1,12 +1,15 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { Image, StyleSheet, View, KeyboardAvoidingView } from 'react-native';
-import { Text, Button, TextInput } from 'react-native-paper';
+import { Image, StyleSheet, View, ToastAndroid } from 'react-native';
+import { Text } from 'react-native-paper';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import ButtonCommon from '../components/ButtonCommon';
+import InputCommon from '../components/InputCommon';
+import Util from '../utils/util';
+import { MAX_DISH, MAX_VOTE } from '../../res/data/config';
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -61,7 +64,41 @@ const styles = StyleSheet.create({
 });
 
 const Login = ({ navigation }) => {
-  const [text, setText] = React.useState('');
+  let userName,
+    password = '';
+  const getUserName = (uName) => {
+    userName = uName;
+  };
+  const getPassword = (pass) => {
+    password = pass;
+  };
+  const showToast = (message) => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);
+  };
+
+  const checkLogin = async () => {
+    if (userName.length === 0 || password.length === 0) {
+      showToast('Username or Password Empty');
+      return;
+    }
+    const credentials = { userName, password };
+    const { status, currentUser } = Util.checkLogin(credentials);
+    if (status) {
+      console.log('currentUser --->', currentUser);
+      navigation.navigate('Poll');
+      Util.user = {
+        currentUser,
+        votedRecipies: [],
+        maxDishAllowed: MAX_DISH,
+        maxVoteAllowed: MAX_VOTE,
+      };
+      await Util.setLoginStatus(true, Util.user);
+    } else {
+      showToast('Wrong Username or Password Entered');
+      await Util.setLoginStatus(true, {});
+    }
+  };
+
   return (
     <View style={styles.mainContainer}>
       <View style={styles.headerContainer}>
@@ -73,31 +110,14 @@ const Login = ({ navigation }) => {
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.headerText}>Syook Recipe Ranker</Text>
-        <TextInput
-          mode='outlined'
-          autoCorrect={false}
-          theme={{
-            roundness: 10,
-          }}
-          style={styles.inputStyle}
-          placeholder='Username'
-          value={text}
-          onChangeText={(text) => setText(text)}
-        />
-        <TextInput
-          theme={{ roundness: 10 }}
-          mode='outlined'
-          autoCorrect={false}
-          secureTextEntry
-          style={styles.inputStyle}
-          placeholder='Password'
-          value={text}
-          onChangeText={(text) => setText(text)}
-        />
+        <InputCommon onChange={getUserName} value={null} placeholder='Username' />
+        <InputCommon onChange={getPassword} value={null} placeholder='Password' isPassword />
         <ButtonCommon
           style={styles.buttonStyle}
           content='Sign In '
-          onPress={() => navigation.push('Poll')}
+          onPress={() => {
+            checkLogin();
+          }}
         />
       </View>
     </View>

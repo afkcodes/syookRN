@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import CreateDish from './CreateDish';
 import VoteDish from './VoteDish';
+import Util from '../utils/util';
 
 const Tab = createMaterialTopTabNavigator();
-function PollTab() {
+function PollTabNavigator() {
+  const getUserData = async () => {
+    await Util.getUserData(Util.user.currentUser.username);
+    console.log(Util.user);
+  };
+  useEffect(() => {
+    getUserData();
+  }, []);
   return (
     <Tab.Navigator
       tabBarOptions={{
@@ -17,4 +25,4 @@ function PollTab() {
     </Tab.Navigator>
   );
 }
-export default PollTab;
+export default PollTabNavigator;
