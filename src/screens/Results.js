@@ -1,13 +1,12 @@
 /* eslint-disable react/prop-types */
 import React, { useContext } from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, FlatList, View } from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import ButtonCommon from '../components/ButtonCommon';
-import Dish from '../components/Dish';
 import RecipiesContext from '../contexts/RecipiesContext';
+import Dish from '../components/Dish';
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -27,46 +26,33 @@ const styles = StyleSheet.create({
   },
   dishListContainer: {
     flex: 1,
+    backgroundColor: 'white',
     width: '100%',
     alignItems: 'center',
     justifyContent: 'space-evenly',
   },
 });
-
 const Item = ({ item }) => (
   <Dish
     dishName={item.dishName}
     dishDesc={item.dishDesc}
-    isVoterScreen
     imgSrc={item.imagePath}
     item={item}
     user={item.user}
   />
 );
-
-const VoteDish = ({ navigation }) => {
+const Results = () => {
   const { data } = useContext(RecipiesContext);
   return (
-    <View style={styles.mainContainer}>
-      <View style={styles.dishListContainer}>
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={data}
-          renderItem={Item}
-          keyExtractor={(item) => item.id}
-        />
-      </View>
-      <View>
-        <ButtonCommon
-          style={styles.buttonStyle}
-          content='Show Results '
-          onPress={() => {
-            navigation.navigate('Results');
-          }}
-        />
-      </View>
+    <View style={styles.dishListContainer}>
+      <FlatList
+        showsVerticalScrollIndicator={false}
+        data={data.sort((a, b) => a.points - b.points).reverse()}
+        renderItem={Item}
+        keyExtractor={(item) => item.id}
+      />
     </View>
   );
 };
 
-export default VoteDish;
+export default Results;

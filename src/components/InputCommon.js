@@ -1,5 +1,6 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+/* eslint-disable react/prop-types */
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import {
   widthPercentageToDP as wp,
@@ -19,7 +20,9 @@ const styles = StyleSheet.create({
 });
 
 const InputCommon = (props) => {
-  const { onChange, value, isTextArea, placeholder } = props;
+  const [state, setState] = useState('');
+  const { onChange, value, isTextArea, placeholder, isPassword } = props;
+  onChange(state);
   return (
     <TextInput
       mode='outlined'
@@ -27,12 +30,13 @@ const InputCommon = (props) => {
       theme={{
         roundness: 10,
       }}
-      multiline
+      secureTextEntry={isPassword}
+      multiline={!isPassword}
       numberOfLines={8}
       style={isTextArea ? styles.textAreaStyle : styles.inputStyle}
       placeholder={placeholder}
-      value={value}
-      onChangeText={onChange}
+      value={state}
+      onChangeText={(nextValue) => setState(nextValue)}
     />
   );
 };

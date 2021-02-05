@@ -1,54 +1,64 @@
-const users = {
-  ashish: {
+const users = [
+  {
     id: 1,
+    name: 'Ashish',
     username: 'ashish',
     password: 'ashish123',
   },
-  aman: {
+  {
     id: 2,
+    name: 'Aman',
     username: 'aman',
     password: 'aman123',
   },
-  monchen: {
+  {
     id: 3,
+    name: 'Monchen',
     username: 'monchen',
     password: 'monchen123',
   },
-  shahsi: {
+  {
     id: 4,
+    name: 'Shahsi',
     username: 'shahsi',
     password: 'shahsi123',
   },
-  anil: {
+  {
     id: 5,
+    name: 'Anil',
     username: 'anil',
     password: 'anil123',
   },
-  sayem: {
+  {
     id: 6,
+    name: 'Sayem',
     username: 'sayem',
     password: 'sayem123',
   },
-  sachin: {
+  {
     id: 7,
+    name: 'Sachin',
     username: 'sachin',
     password: 'sachin123',
   },
-  ashok: {
+  {
     id: 8,
+    name: 'Ashok',
     username: 'ashok',
     password: 'ashok123',
   },
-  balayil: {
+  {
     id: 9,
-    username: 'balayil',
-    password: 'balayil123',
+    name: 'Ramiz',
+    username: 'ramiz',
+    password: 'ramiz123',
   },
-  hatim: {
+  {
     id: 10,
+    name: 'Hatim',
     username: 'hatim',
     password: 'hatim123',
   },
-};
+];
 
 export default users;

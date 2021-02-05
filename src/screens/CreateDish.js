@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useRef, useContext } from 'react';
+import { StyleSheet, Text, View, ToastAndroid } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import {
   widthPercentageToDP as wp,
@@ -8,6 +8,9 @@ import {
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import ButtonCommon from '../components/ButtonCommon';
 import InputCommon from '../components/InputCommon';
+import Util from '../utils/util';
+import RecipiesContext from '../contexts/RecipiesContext';
+import UserContext from '../contexts/UserContext';
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -42,11 +45,16 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
-
 const CreateDish = () => {
-  const [dishName, setDishName] = useState('');
-  const [dishDesc, setdishDesc] = useState('');
-  const [imagePath, setImagePath] = useState({});
+  let dishName,
+    dishDesc = '';
+  const getDishName = (name) => {
+    dishName = name;
+  };
+  const getdishDesc = (desc) => {
+    dishDesc = desc;
+  };
+  let imagePath = {};
   const imageOptions = {
     mediaType: 'photo',
     includeBase64: false,
@@ -55,13 +63,20 @@ const CreateDish = () => {
     saveToPhotos: true,
   };
   const refRBSheet = useRef();
-
+  const recipiesData = useContext(RecipiesContext);
+  const userContextValue = useContext(UserContext);
+  // console.log(recipiesData);
+  const showToast = (message) => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);
+  };
   const launchNativeCamera = () => {
     launchCamera(imageOptions, (response) => {
-      console.log('Response = ', response);
+      // console.log('Response = ', response);
       if (response.uri) {
         const imageUri = { uri: response.uri };
-        setImagePath(imageUri);
+        imagePath = imageUri;
+        refRBSheet.current.close();
+        showToast('Photo Selected');
       } else if (response.didCancel) {
         console.log('Cancelled by user');
       } else {
@@ -72,10 +87,12 @@ const CreateDish = () => {
 
   const launchNativeLibrary = () => {
     launchImageLibrary(imageOptions, (response) => {
-      console.log('Response = ', response);
+      // console.log('Response = ', response);
       if (response.uri) {
         const imageUri = { uri: response.uri };
-        setImagePath(imageUri);
+        imagePath = imageUri;
+        refRBSheet.current.close();
+        showToast('Photo Selected');
       } else if (response.didCancel) {
         console.log('Cancelled by user');
       } else {
@@ -83,20 +100,53 @@ const CreateDish = () => {
       }
     });
   };
+
+  const onSubmit = async () => {
+    if (dishName === '') {
+      showToast('Recipe name cannot be empty');
+      return;
+    }
+    if (dishDesc === '') {
+      showToast('Recipe Decription cannot be empty');
+      return;
+    }
+    if (Object.keys(imagePath).length === 0) {
+      showToast('Recipe Photo not Selected');
+      return;
+    }
+
+    const currentDish = {
+      id: Util.createUID(),
+      dishName,
+      dishDesc,
+      imagePath,
+      votes: 0,
+      points: 0,
+      votedBy: [],
+      user: userContextValue.user.currentUser.name,
+    };
+
+    if (userContextValue.user.maxDishAllowed > 0) {
+      recipiesData.updateRecipiesData(currentDish);
+      userContextValue.user.maxDishAllowed -= 1;
+      userContextValue.saveUser();
+      console.log('userContextValue.user.maxDishAllowed--->', userContextValue.user);
+    } else {
+      showToast('Entering more than 2 dishes not allowed');
+    }
+  };
+  // TODO FIX VALUE & CLEAR INPUT
   return (
     <View style={styles.mainContainer}>
       <View style={styles.headerContainer}>
+        <Text>{`Hi, ${userContextValue.user.currentUser.name} ! `}</Text>
         <Text style={styles.headerText}>Enter Your 2 Best Dishes </Text>
       </View>
       <View style={styles.dishInputContainer}>
+        <InputCommon onChange={getDishName} value={null} placeholder='Dish Name' />
         <InputCommon
-          onChange={(nextValue) => setDishName(nextValue)}
-          value={dishName}
-          placeholder='Dish Name'
-        />
-        <InputCommon
-          onChange={(nextValue) => setdishDesc(nextValue)}
-          value={dishDesc}
+          onChange={getdishDesc}
+          value={null}
           isTextArea
           placeholder='Dish Description'
         />
@@ -111,7 +161,8 @@ const CreateDish = () => {
           style={styles.buttonStyle}
           content='Submit '
           onPress={() => {
-            refRBSheet.current.open();
+            onSubmit();
+            // navigation.navigate('Login');
           }}
         />
         <RBSheet

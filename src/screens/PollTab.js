@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { StyleSheet } from 'react-native';
 import CreateDish from './CreateDish';
 import VoteDish from './VoteDish';
+import Util from '../utils/util';
+import UserContext from '../contexts/UserContext';
 
 const Tab = createMaterialTopTabNavigator();
-
-const styles = StyleSheet.create({});
-
-function PollTab(navigation) {
+function PollTabNavigator() {
+  const userContextvalue = useContext(UserContext);
+  const getUserData = async () => {
+    await userContextvalue.getUser(userContextvalue.user.currentUser.username);
+  };
+  useEffect(() => {
+    getUserData();
+  }, []);
   return (
     <Tab.Navigator
       tabBarOptions={{
@@ -17,17 +22,8 @@ function PollTab(navigation) {
       }}
     >
       <Tab.Screen name='Create Dishes' component={CreateDish} />
-      <Tab.Screen
-        name='Vote Dishes'
-        component={VoteDish}
-        listeners={{
-          tabPress: (e) => {
-            // Prevent default action
-            console.log('hello');
-          },
-        }}
-      />
+      <Tab.Screen name='Vote Dishes' component={VoteDish} />
     </Tab.Navigator>
   );
 }
-export default PollTab;
+export default PollTabNavigator;
