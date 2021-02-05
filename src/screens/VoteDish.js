@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useContext } from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import { StyleSheet, View, FlatList, Text } from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -49,12 +49,16 @@ const VoteDish = ({ navigation }) => {
   return (
     <View style={styles.mainContainer}>
       <View style={styles.dishListContainer}>
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={data}
-          renderItem={Item}
-          keyExtractor={(item) => item.id}
-        />
+        {data.length > 0 ? (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={data}
+            renderItem={Item}
+            keyExtractor={(item) => item.id}
+          />
+        ) : (
+          <Text> Enter some recipies to vote them. </Text>
+        )}
       </View>
       <View>
         <ButtonCommon

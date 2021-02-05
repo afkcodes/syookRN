@@ -1,4 +1,18 @@
-const users = [
+## Syook Recipe Ranker
+
+> How to Run:
+
+```js 
+> npm install
+> npm run link
+> npm start
+> npm run android
+
+```
+>Users
+
+```js
+[
   {
     id: 1,
     name: 'Ashish',
@@ -59,6 +73,6 @@ const users = [
     username: 'hatim',
     password: 'hatim123',
   },
-];
+]
 
-export default users;
+```
