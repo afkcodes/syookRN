@@ -16,30 +16,5 @@ Util.checkLogin = (credentials) => {
   }
   return { status: false, user: {}};
 };
-Util.user = {};
 
-Util.getUserData = async (username) => {
-  const userData = await Storage.getData(username);
-  if (userData) {
-    console.log('userData------>', userData);
-    Util.user = userData;
-  }
-};
-
-Util.setUserData = async (key, val) => {
-  await Storage.setData(key, val);
-};
-
-Util.setLoginStatus = async (status, user) => {
-  await Storage.setData('userstatus', { status, user });
-};
-
-Util.getLoginStatus = async () => {
-  const data = await Storage.getData('userstatus');
-  console.log('data--->', data);
-  if (data) {
-    Util.user = data.user;
-  }
-  return data;
-};
 export default Util;

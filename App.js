@@ -13,8 +13,6 @@ const App = () => {
   const recipeContext = useContext(RecipiesContext);
   const getInitialData = async () => {
     await recipeContext.getSavedRecipies();
-    const isLoggedin = await Util.getLoginStatus();
-    console.log(isLoggedin);
   };
   useEffect(() => {
     getInitialData();
@@ -26,7 +24,19 @@ const App = () => {
         <Stack.Navigator>
           <Stack.Screen options={{ headerShown: false }} name='Login' component={Login} />
           <Stack.Screen options={{ headerShown: false }} name='Poll' component={PollTab} />
-          <Stack.Screen options={{ headerShown: false }} name='Results' component={Results} />
+          <Stack.Screen
+            options={{
+              title: 'Vote Results',
+              headerStyle: {
+                backgroundColor: '#F7B7B8',
+                elevation: 0,
+              },
+              headerLeft: () => null,
+              headerTitleStyle: { alignSelf: 'center' },
+            }}
+            name='Results'
+            component={Results}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </>

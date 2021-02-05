@@ -1,14 +1,16 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Image, StyleSheet, View, ToastAndroid } from 'react-native';
 import { Text } from 'react-native-paper';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import { useIsFocused } from '@react-navigation/native';
 import ButtonCommon from '../components/ButtonCommon';
 import InputCommon from '../components/InputCommon';
 import Util from '../utils/util';
+import UserContext from '../contexts/UserContext';
 import { MAX_DISH, MAX_VOTE } from '../../res/data/config';
 
 const styles = StyleSheet.create({
@@ -64,6 +66,19 @@ const styles = StyleSheet.create({
 });
 
 const Login = ({ navigation }) => {
+  const isFocused = useIsFocused();
+  const userContextValue = useContext(UserContext);
+  useEffect(() => {
+    if (isFocused) {
+      userContextValue.updateUserData({
+        currentUser: {},
+        votedRecipies: [],
+        maxDishAllowed: 0,
+        maxVoteAllowed: 0,
+      });
+    }
+  }, [isFocused]);
+
   let userName,
     password = '';
   const getUserName = (uName) => {
@@ -84,18 +99,18 @@ const Login = ({ navigation }) => {
     const credentials = { userName, password };
     const { status, currentUser } = Util.checkLogin(credentials);
     if (status) {
-      console.log('currentUser --->', currentUser);
-      navigation.navigate('Poll');
-      Util.user = {
+      const user = {
         currentUser,
         votedRecipies: [],
         maxDishAllowed: MAX_DISH,
         maxVoteAllowed: MAX_VOTE,
+        votesPointLeft: null,
       };
-      await Util.setLoginStatus(true, Util.user);
+      userContextValue.updateUserData(user);
+      Util.points = [10, 20, 30];
+      navigation.navigate('Poll');
     } else {
       showToast('Wrong Username or Password Entered');
-      await Util.setLoginStatus(true, {});
     }
   };
 

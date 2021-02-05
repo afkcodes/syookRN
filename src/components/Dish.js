@@ -1,6 +1,7 @@
+/* eslint-disable no-nested-ternary */
 /* eslint-disable react/prop-types */
-import React, { useContext, useEffect } from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Image, ToastAndroid } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Checkbox } from 'react-native-paper';
 import {
@@ -8,8 +9,8 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import RecipiesContext from '../contexts/RecipiesContext';
+import UserContext from '../contexts/UserContext';
 import Util from '../utils/util';
-import { FIRST_VOTE_POINT, SECOND_VOTE_POINT, THIRD_VOTE_POINT } from '../../res/data/config';
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -37,8 +38,6 @@ const styles = StyleSheet.create({
     height: '85%',
     width: '52%',
     flexDirection: 'column',
-
-    // justifyContent: 'space-evenly',
   },
   dishNameContainer: {
     height: '20%',
@@ -64,38 +63,62 @@ const styles = StyleSheet.create({
     color: 'grey',
   },
 });
+let points;
 
 const Dish = ({ dishName, dishDesc, user, isVoterScreen, imgSrc, item }) => {
-  const [checked, setChecked] = React.useState(false);
+  const showToast = (message) => {
+    ToastAndroid.showWithGravity(message, ToastAndroid.LONG, ToastAndroid.TOP);
+  };
+
+  const [checked, setChecked] = useState(false);
   const recipiesData = useContext(RecipiesContext);
-  const currUser = Util.user;
-  const points = [10, 20, 30];
+  const userContextValue = useContext(UserContext);
+  const currUser = userContextValue.user;
+  const [votedUser, setVotedUser] = useState('');
+  useEffect(() => {
+    points = currUser.votesPointLeft === null ? Util.points : currUser.votesPointLeft;
+    if (item.votedBy.includes(currUser.currentUser.username)) {
+      setChecked(!checked);
+      setVotedUser(currUser.currentUser.username);
+    }
+  }, []);
+
   const updateData = async (currentItem) => {
     if (!checked) {
       if (currUser.votedRecipies.length < 3) {
-        currUser.votedRecipies.push(currentItem);
-        currentItem.points = item.points + points.pop();
+        console.log(points);
+        const point = points.length > 1 ? points.sort().pop() : points.pop();
+        currentItem.points = item.points + point;
         currentItem.votes = item.votes + 1;
-        currentItem.votedBy.push(Util.user.currentUser.username);
-        console.log(currUser.votedRecipies);
-        recipiesData.updateVotes(currentItem);
+        currentItem.votedBy.push(currUser.currentUser.username);
+        currUser.votedRecipies.push(Object.assign(currentItem, { userPoint: point }));
+        currUser.votesPointLeft = [...points];
         setChecked(!checked);
       } else {
-        console.log('Not more than 3 votes');
+        showToast('Not more than 3 votes Allowed');
       }
     }
     if (checked) {
+      console.log('cheecked if');
+      const removeIndex = currUser.votedRecipies.map((item) => item.id).indexOf(currentItem.id);
+      const dish = currUser.votedRecipies.splice(removeIndex, 1);
+      const point = dish[0].userPoint;
+
+      currentItem.points = item.points - point;
       currentItem.votes = item.votes - 1;
-      currentItem.votedBy.pop(Util.user.currentUser.username);
-      currUser.votedRecipies.pop();
+      currentItem.votedBy.pop(currUser.currentUser.username);
+      points.push(dish[0].userPoint);
+      currUser.votesPointLeft = [...points];
+
       setChecked(!checked);
-      console.log(currUser.votedRecipies);
-      console.log('voteAttempt.length', currUser.votedRecipies.length);
     }
+    userContextValue.saveUser();
+    recipiesData.updateVotes(currentItem);
   };
 
   return (
     <TouchableOpacity
+      disabled={!isVoterScreen}
       activeOpacity={0.8}
       onPress={() => {
         updateData(item);
@@ -119,7 +142,12 @@ const Dish = ({ dishName, dishDesc, user, isVoterScreen, imgSrc, item }) => {
           <Text style={styles.descTextStyle}>{`${dishDesc} `}</Text>
         </View>
         <Text style={styles.userAtrributionText}>
-          {user === Util.user.currentUser.name ? 'Dish By: You' : `Dish By: ${user}`}
+          {!isVoterScreen && votedUser !== '' ? 'Voted By: You' : ''}
+          {isVoterScreen
+            ? user === userContextValue.user.currentUser.name
+              ? 'Dish By: You'
+              : `Dish By: ${user}`
+            : ''}
         </Text>
       </View>
       {isVoterScreen ? <Checkbox status={checked ? 'checked' : 'unchecked'} /> : null}

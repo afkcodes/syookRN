@@ -1,14 +1,12 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState, useContext } from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import React, { useContext } from 'react';
+import { StyleSheet, View, FlatList } from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import { useIsFocused } from '@react-navigation/native';
 import ButtonCommon from '../components/ButtonCommon';
 import Dish from '../components/Dish';
-import Storage from '../utils/Storage';
 import RecipiesContext from '../contexts/RecipiesContext';
 
 const styles = StyleSheet.create({
@@ -35,7 +33,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const item = ({ item }) => (
+const Item = ({ item }) => (
   <Dish
     dishName={item.dishName}
     dishDesc={item.dishDesc}
@@ -47,20 +45,6 @@ const item = ({ item }) => (
 );
 
 const VoteDish = ({ navigation }) => {
-  // const [dishesData, setDishesData] = useState(null);
-  // const getDishesData = async () => {
-  //   console.log('calling getDishesData');
-  //   const data = await Storage.getData('recipes');
-  //   console.log('data----> ', data);
-  // setDishesData(data);
-  //   return data;
-  // };
-  // const isFocused = useIsFocused();
-  // console.log(isFocused);
-  // if (isFocused && dishesData === null) {
-  //   getDishesData();
-  //   console.log(dishesData);
-  // }
   const { data } = useContext(RecipiesContext);
   return (
     <View style={styles.mainContainer}>
@@ -68,33 +52,16 @@ const VoteDish = ({ navigation }) => {
         <FlatList
           showsVerticalScrollIndicator={false}
           data={data}
-          renderItem={item}
+          renderItem={Item}
           keyExtractor={(item) => item.id}
         />
-        {/* <Dish
-          dishName='Tandoori Chicken'
-          dishDesc='Awesome Tandoori Dish By Ashish Kumar'
-          isVoterScreen
-        />
-        <Dish
-          dishName='Tandoori Chicken'
-          dishDesc='Awesome Tandoori Dish By Ashish Kumar'
-          isVoterScreen
-        />
-        <Dish
-          dishName='Tandoori Chicken'
-          dishDesc='Awesome Tandoori Dish By Ashish Kumar'
-          isVoterScreen
-          id='1'
-        /> */}
       </View>
       <View>
         <ButtonCommon
           style={styles.buttonStyle}
-          content='Submit Vote '
+          content='Show Results '
           onPress={() => {
-            console.log('Voted');
-            navigation.navigate('Login');
+            navigation.navigate('Results');
           }}
         />
       </View>

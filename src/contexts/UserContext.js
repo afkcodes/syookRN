@@ -3,10 +3,11 @@ import React, { createContext, useState } from 'react';
 import Storage from '../utils/Storage';
 
 const UserContext = createContext();
-export const RecipiesProvider = ({ children }) => {
+export const UserProvider = ({ children }) => {
   const [currUser, setCurrUser] = useState({});
-  const getUser = async () => {
-    const data = await Storage.getData('user');
+  const getUser = async (key) => {
+    const data = await Storage.getData(key);
+    console.log('data--->', data);
     if (data) {
       setCurrUser(data);
     }
@@ -16,8 +17,7 @@ export const RecipiesProvider = ({ children }) => {
   };
 
   const saveUser = async () => {
-    console.log('calling saveRecipiesData');
-    await Storage.setData('user', currUser);
+    await Storage.setData(currUser.currentUser.username, currUser);
   };
   return (
     <UserContext.Provider

@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import CreateDish from './CreateDish';
 import VoteDish from './VoteDish';
 import Util from '../utils/util';
+import UserContext from '../contexts/UserContext';
 
 const Tab = createMaterialTopTabNavigator();
 function PollTabNavigator() {
+  const userContextvalue = useContext(UserContext);
   const getUserData = async () => {
-    await Util.getUserData(Util.user.currentUser.username);
-    console.log(Util.user);
+    await userContextvalue.getUser(userContextvalue.user.currentUser.username);
   };
   useEffect(() => {
     getUserData();

@@ -22,7 +22,6 @@ export const RecipiesProvider = ({ children }) => {
     const recipeIndex = recipiesData.findIndex((element) => element.id === data.id);
     const UpdatedRecipesData = [...recipiesData];
     UpdatedRecipesData[recipeIndex] = data;
-    // console.log('data--->updateVotes', UpdatedRecipesData);
     setRecipiesData(UpdatedRecipesData);
   };
 
